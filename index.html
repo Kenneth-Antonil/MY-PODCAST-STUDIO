@@ -1581,17 +1581,7 @@ async function unlockAndLoadAudio() {
 document.addEventListener('click',  unlockAndLoadAudio, { once: true });
 document.addEventListener('keydown', unlockAndLoadAudio, { once: true });
 
-// Listen for SFX uploaded from control panel
-const bcAudio = new BroadcastChannel('horror-overlay-ctrl');
-// (already handled above in bc listener — we just need to reload SFX if updated)
 
-// Reload next-story SFX from localStorage on init
-(async () => {
-    const saved = localStorage.getItem('horror_sfx_next');
-    if (saved) {
-        // Will be loaded after first interaction
-    }
-})();
 </script>
 </body>
 </html>
