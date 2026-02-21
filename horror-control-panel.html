@@ -289,6 +289,45 @@
             </button>
         </div>
 
+        <!-- ===================== STORY MEDIA ===================== -->
+        <div class="card">
+            <div class="card-title">🎞️ Story Mode Media</div>
+            <p style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;line-height:1.7;margin-bottom:18px;">
+                Ito ang lalabas sa likod ng story mode. I-upload ng larawan o video — o mag-paste ng URL.
+            </p>
+
+            <div class="form-row">
+                <label>Type</label>
+                <select id="story-media-type">
+                    <option value="image">🖼️  Image (PNG, JPG, GIF, WebP)</option>
+                    <option value="video">🎬  Video (MP4, WebM)</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label>Paste URL</label>
+                <input type="url" id="story-media-url" placeholder="https://... or leave blank to clear">
+            </div>
+
+            <label>Or Upload File</label>
+            <div class="drop-zone" id="story-media-drop" onclick="document.getElementById('story-media-file').click()" style="margin-bottom:16px;">
+                <input type="file" id="story-media-file" accept="image/*,video/*" style="display:none" onchange="handleStoryMediaFile(event)">
+                <span id="story-media-drop-label">Click para pumili ng larawan/video, o i-drag dito</span>
+            </div>
+
+            <div id="story-media-preview-wrap" style="display:none;margin-bottom:16px;text-align:center;background:#0a0a0a;border:1px solid rgba(201,0,0,0.15);padding:10px;">
+                <img id="story-media-preview-img" style="max-width:100%;max-height:140px;object-fit:contain;display:none;">
+                <video id="story-media-preview-vid" style="max-width:100%;max-height:140px;display:none;" muted loop autoplay playsinline></video>
+            </div>
+
+            <div style="display:flex;gap:10px;">
+                <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="applyStoryMedia()">
+                    <span class="btn-icon">📡</span> Send to Overlay
+                </button>
+                <button class="btn btn-danger" style="padding:12px 18px;" onclick="clearStoryMedia()" title="I-clear ang media">✕</button>
+            </div>
+        </div>
+
         <!-- ===================== SPONSORS ===================== -->
         <div class="card full-width">
             <div class="card-title">🖼️ Sponsor Images</div>
@@ -458,6 +497,94 @@
             sendToOverlay({ type: 'UPDATE_VIDEO_ID', videoId: cleanId });
             showToast('✓ Video ID updated: ' + cleanId);
         }
+
+        // =============================================
+        // STORY MEDIA
+        // =============================================
+        let storyMediaSrc = localStorage.getItem('horror_story_media_src') || '';
+        let storyMediaType = localStorage.getItem('horror_story_media_type') || 'image';
+
+        // Restore on load
+        if (storyMediaSrc) {
+            document.getElementById('story-media-type').value = storyMediaType;
+            showStoryMediaPreview(storyMediaSrc, storyMediaType);
+        }
+
+        function handleStoryMediaFile(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const type = file.type.startsWith('video/') ? 'video' : 'image';
+            document.getElementById('story-media-type').value = type;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                storyMediaSrc = evt.target.result;
+                storyMediaType = type;
+                showStoryMediaPreview(storyMediaSrc, storyMediaType);
+                document.getElementById('story-media-drop-label').textContent = '✓ ' + file.name;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showStoryMediaPreview(src, type) {
+            const wrap = document.getElementById('story-media-preview-wrap');
+            const img = document.getElementById('story-media-preview-img');
+            const vid = document.getElementById('story-media-preview-vid');
+            wrap.style.display = 'block';
+            if (type === 'video') {
+                img.style.display = 'none';
+                vid.style.display = 'block';
+                vid.src = src;
+            } else {
+                vid.style.display = 'none';
+                img.style.display = 'block';
+                img.src = src;
+            }
+        }
+
+        function applyStoryMedia() {
+            const urlInput = document.getElementById('story-media-url').value.trim();
+            const type = document.getElementById('story-media-type').value;
+            const src = urlInput || storyMediaSrc;
+            if (!src) { showToast('Walang media! Upload muna o mag-paste ng URL.', true); return; }
+            if (urlInput) {
+                storyMediaSrc = urlInput;
+                storyMediaType = type;
+                showStoryMediaPreview(urlInput, type);
+            }
+            localStorage.setItem('horror_story_media_src', storyMediaSrc);
+            localStorage.setItem('horror_story_media_type', storyMediaType);
+            sendToOverlay({ type: 'UPDATE_STORY_MEDIA', src: storyMediaSrc, mediaType: storyMediaType });
+            showToast('✓ Story media sent to overlay!');
+        }
+
+        function clearStoryMedia() {
+            storyMediaSrc = ''; storyMediaType = 'image';
+            localStorage.removeItem('horror_story_media_src');
+            localStorage.removeItem('horror_story_media_type');
+            document.getElementById('story-media-url').value = '';
+            document.getElementById('story-media-preview-wrap').style.display = 'none';
+            document.getElementById('story-media-drop-label').textContent = 'Click para pumili ng larawan/video, o i-drag dito';
+            sendToOverlay({ type: 'UPDATE_STORY_MEDIA', src: '', mediaType: 'image' });
+            showToast('✓ Story media cleared.');
+        }
+
+        // Drag & drop for story media
+        const storyDrop = document.getElementById('story-media-drop');
+        storyDrop.addEventListener('dragover', (e) => { e.preventDefault(); storyDrop.classList.add('dragover'); });
+        storyDrop.addEventListener('dragleave', () => storyDrop.classList.remove('dragover'));
+        storyDrop.addEventListener('drop', (e) => {
+            e.preventDefault(); storyDrop.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (!file) return;
+            const type = file.type.startsWith('video/') ? 'video' : 'image';
+            document.getElementById('story-media-type').value = type;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                storyMediaSrc = evt.target.result; storyMediaType = type;
+                showStoryMediaPreview(storyMediaSrc, storyMediaType);
+                document.getElementById('story-media-drop-label').textContent = '✓ ' + file.name;
+            };
+            reader.readAsDataURL(file);
+        });
 
         // =============================================
         // STORY TEXT
