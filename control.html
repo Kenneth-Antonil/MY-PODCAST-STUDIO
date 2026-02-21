@@ -2,88 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Broadcast Control Panel</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: #fff; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #1e1e1e; padding: 20px; border-radius: 8px; border-top: 5px solid #c90000; }
-        h1 { color: #c90000; margin-top: 0; text-align: center; }
-        .control-group { margin-bottom: 20px; padding: 15px; background: #2a2a2a; border-radius: 5px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; }
-        input[type="text"] { width: calc(100% - 20px); padding: 10px; background: #000; color: #fff; border: 1px solid #444; border-radius: 4px; margin-bottom: 10px; }
-        button { background: #c90000; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 16px; width: 100%; transition: background 0.3s; margin-bottom: 10px;}
+        body { font-family: sans-serif; background: #121212; color: #fff; padding: 20px; }
+        .box { background: #1e1e1e; padding: 20px; border-radius: 8px; border-top: 4px solid #c90000; max-width: 500px; margin: auto; }
+        input { width: 100%; padding: 10px; margin: 10px 0; background: #000; color: #fff; border: 1px solid #444; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #c90000; color: #fff; border: none; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
         button:hover { background: #ff0000; }
-        .btn-secondary { background: #444; }
-        .btn-secondary:hover { background: #666; }
-        .small-text { font-size: 12px; color: #aaa; margin-bottom: 10px; display: block; }
+        h2 { color: #c90000; text-align: center; }
+        .label { font-size: 12px; color: #888; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>DIRECTOR'S PANEL</h1>
+    <div class="box">
+        <h2>BROADCAST CONTROL</h2>
+        
+        <button onclick="sendCommand('TOGGLE_WAITING')">ON/OFF WAITING SCREEN</button>
 
-        <div class="control-group">
-            <label>MAIN CONTROLS</label>
-            <button onclick="sendCommand('TOGGLE_WAITING')">Toggle Waiting Screen (ON/OFF)</button>
+        <div style="margin-top:20px;">
+            <div class="label">YouTube Video ID</div>
+            <input type="text" id="vid-id" placeholder="Paste Video ID here (e.g. 0NdX9x0AQSQ)">
+            <button onclick="updateVideoId()" style="background:#444;">Update Video ID</button>
         </div>
 
-        <div class="control-group">
-            <label>SPONSOR MANAGEMENT</label>
-            <span class="small-text">Paste direct image URLs here (e.g., https://site.com/logo.png). Leave blank if none.</span>
-            
-            <input type="text" id="sponsor1" placeholder="Sponsor Image URL 1">
-            <input type="text" id="sponsor2" placeholder="Sponsor Image URL 2">
-            <input type="text" id="sponsor3" placeholder="Sponsor Image URL 3">
-            
-            <button onclick="updateSponsors()" class="btn-secondary">Update & Show Sponsors</button>
-            <button onclick="hideSponsors()" class="btn-secondary" style="background:#5a0000;">Hide Sponsors</button>
+        <div style="margin-top:20px;">
+            <div class="label">Sponsor Images (Paste Links)</div>
+            <input type="text" id="sp1" placeholder="Sponsor Image Link 1">
+            <input type="text" id="sp2" placeholder="Sponsor Image Link 2">
+            <button onclick="updateSponsors()" style="background:#444;">Update Sponsors</button>
+            <button onclick="sendCommand('UPDATE_SPONSORS', {images: []})" style="background:#333;">Hide Sponsors</button>
         </div>
 
-        <div class="control-group">
-            <label>NEWS TICKER TEXT</label>
-            <input type="text" id="ticker-text" placeholder="Enter scrolling text here...">
-            <button onclick="updateTicker()" class="btn-secondary">Update Ticker</button>
+        <div style="margin-top:20px;">
+            <div class="label">Ticker Text</div>
+            <input type="text" id="tick" placeholder="News ticker message...">
+            <button onclick="updateTicker()" style="background:#444;">Update Ticker</button>
         </div>
     </div>
 
     <script>
-        // Nagpapadala ng command papunta sa main index.html
-        function sendCommand(action, extraData = {}) {
-            const payload = {
-                action: action,
-                timestamp: Date.now(), // Forces localstorage to trigger even if same command is sent
-                ...extraData
-            };
-            localStorage.setItem('broadcast_cmd', JSON.stringify(payload));
+        function sendCommand(action, extra = {}) {
+            localStorage.setItem('broadcast_cmd', JSON.stringify({ action, timestamp: Date.now(), ...extra }));
+        }
+
+        function updateVideoId() {
+            const id = document.getElementById('vid-id').value;
+            if(id) sendCommand('UPDATE_VIDEO_ID', { id });
         }
 
         function updateSponsors() {
-            const s1 = document.getElementById('sponsor1').value.trim();
-            const s2 = document.getElementById('sponsor2').value.trim();
-            const s3 = document.getElementById('sponsor3').value.trim();
-            
+            const s1 = document.getElementById('sp1').value;
+            const s2 = document.getElementById('sp2').value;
             const images = [];
             if(s1) images.push(s1);
             if(s2) images.push(s2);
-            if(s3) images.push(s3);
-
-            sendCommand('UPDATE_SPONSORS', { images: images });
-            alert('Sponsors updated on the main screen!');
-        }
-
-        function hideSponsors() {
-            document.getElementById('sponsor1').value = '';
-            document.getElementById('sponsor2').value = '';
-            document.getElementById('sponsor3').value = '';
-            sendCommand('UPDATE_SPONSORS', { images: [] });
+            sendCommand('UPDATE_SPONSORS', { images });
         }
 
         function updateTicker() {
-            const text = document.getElementById('ticker-text').value;
-            if(text) {
-                sendCommand('UPDATE_TICKER', { text: text });
-            }
+            const text = document.getElementById('tick').value;
+            if(text) sendCommand('UPDATE_TICKER', { text });
         }
     </script>
 </body>
