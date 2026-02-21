@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horror Overlay — Control Panel</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@300;400;700&display=swap');
+
+        :root {
+            --red: #c90000;
+            --dark-red: #6a0000;
+            --bg: #080808;
+            --panel: #0f0f0f;
+            --panel-2: #141414;
+            --border: rgba(201,0,0,0.3);
+            --border-bright: rgba(201,0,0,0.7);
+            --text: #e8e8e8;
+            --muted: #666;
+            --green: #00c965;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Roboto Condensed', sans-serif;
+            min-height: 100vh;
+            padding: 0 0 60px 0;
+        }
+
+        /* ===================== HEADER ===================== */
+        header {
+            background: linear-gradient(90deg, #0a0000, #100000);
+            border-bottom: 2px solid var(--red);
+            padding: 20px 40px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 5px 40px rgba(201,0,0,0.2);
+        }
+        .header-left { display: flex; align-items: center; gap: 18px; }
+        .header-rec { width: 12px; height: 12px; background: var(--red); border-radius: 50%; box-shadow: 0 0 10px red; animation: blink 1s infinite; }
+        .header-title { font-family: 'Cinzel', serif; font-size: 20px; letter-spacing: 4px; color: var(--red); }
+        .header-sub { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 3px; margin-top: 3px; }
+        .status-badge { font-family: 'Share Tech Mono', monospace; font-size: 12px; letter-spacing: 2px; padding: 6px 16px; border: 1px solid var(--border); color: var(--muted); }
+        .status-badge.connected { border-color: var(--green); color: var(--green); }
+
+        /* ===================== MAIN LAYOUT ===================== */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 30px;
+        }
+        .full-width { grid-column: 1 / -1; }
+
+        /* ===================== PANEL CARD ===================== */
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 28px 30px;
+            position: relative;
+        }
+        .card::before {
+            content: '';
+            position: absolute; top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--red);
+        }
+        .card-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 13px; letter-spacing: 5px;
+            color: var(--red); text-transform: uppercase;
+            margin-bottom: 22px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .card-title::after {
+            content: '';
+            flex: 1; height: 1px;
+            background: linear-gradient(to right, var(--border), transparent);
+        }
+
+        /* ===================== FORM ELEMENTS ===================== */
+        label {
+            display: block;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px; letter-spacing: 3px;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"], input[type="url"], textarea, select {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-bottom: 2px solid var(--border-bright);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            padding: 12px 15px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            letter-spacing: 1px;
+        }
+        input:focus, textarea:focus {
+            border-color: var(--red);
+            border-bottom-color: var(--red);
+            box-shadow: 0 4px 20px rgba(201,0,0,0.15);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+
+        .form-row { margin-bottom: 20px; }
+
+        /* ===================== BUTTONS ===================== */
+        .btn {
+            font-family: 'Oswald', sans-serif;
+            font-size: 15px; letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 13px 28px;
+            border: none; cursor: pointer;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary {
+            background: var(--red);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(201,0,0,0.3);
+        }
+        .btn-primary:hover { background: #e50000; box-shadow: 0 0 30px rgba(201,0,0,0.6); transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--red);
+            border: 1px solid var(--border-bright);
+        }
+        .btn-secondary:hover { background: rgba(201,0,0,0.08); }
+
+        .btn-danger {
+            background: transparent;
+            color: #ff4444;
+            border: 1px solid rgba(255,68,68,0.4);
+            padding: 8px 14px; font-size: 12px;
+        }
+        .btn-danger:hover { background: rgba(255,68,68,0.1); }
+
+        .btn-icon { font-size: 16px; }
+        .btn-full { width: 100%; justify-content: center; }
+
+        /* ===================== SPONSOR LIST ===================== */
+        #sponsor-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+        .sponsor-entry {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--panel-2);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 10px 14px;
+            animation: fadeIn 0.3s ease;
+        }
+        .sponsor-preview {
+            width: 80px; height: 36px; object-fit: contain;
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+        .sponsor-url-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 11px; color: var(--muted);
+            flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        .add-sponsor-row {
+            display: grid; grid-template-columns: 1fr auto;
+            gap: 10px; align-items: end; margin-bottom: 12px;
+        }
+        .add-sponsor-row-2 {
+            display: flex; gap: 10px; margin-bottom: 16px;
+        }
+
+        /* File drop zone */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            background: rgba(201,0,0,0.02);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px; color: var(--muted); letter-spacing: 2px;
+        }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--red); color: var(--text); background: rgba(201,0,0,0.06); }
+        .drop-zone input[type="file"] { display: none; }
+
+        /* ===================== KEYBOARD GUIDE ===================== */
+        .hotkeys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .hotkey-row { display: flex; align-items: center; gap: 12px; background: var(--panel-2); padding: 12px 16px; border-left: 2px solid var(--dark-red); }
+        .key-badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px; font-weight: bold;
+            background: var(--dark-red); color: #fff;
+            width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 3px 0 #3a0000;
+        }
+        .hotkey-desc { font-size: 14px; letter-spacing: 1px; color: var(--text); }
+        .hotkey-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+        /* ===================== TOAST ===================== */
+        #toast {
+            position: fixed; bottom: 30px; right: 30px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px; letter-spacing: 2px;
+            padding: 14px 24px;
+            background: #0a0a0a;
+            border-left: 4px solid var(--green);
+            color: var(--green);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            transform: translateY(100px); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.25,1,0.5,1);
+            z-index: 999;
+        }
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.error { border-color: var(--red); color: var(--red); }
+
+        /* ===================== STORY TEXT CARD ===================== */
+        .char-count { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; margin-top: 4px; }
+
+        /* ===================== LINK HINT ===================== */
+        .link-hint { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--muted); padding: 10px 14px; background: #0a0a0a; border: 1px dashed var(--border); letter-spacing: 1px; line-height: 1.6; margin-top: 8px; }
+        .link-hint code { color: var(--red); }
+
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <div class="header-rec"></div>
+            <div>
+                <div class="header-title">HORROR OVERLAY</div>
+                <div class="header-sub">Control Panel — No Code Needed</div>
+            </div>
+        </div>
+        <div id="connection-badge" class="status-badge">⬤ OVERLAY DISCONNECTED</div>
+    </header>
+
+    <div class="main-grid">
+
+        <!-- ===================== YOUTUBE LIVE ID ===================== -->
+        <div class="card">
+            <div class="card-title">🎬 YouTube Live ID</div>
+
+            <div class="form-row">
+                <label>Video / Live Stream ID</label>
+                <input type="text" id="input-video-id" placeholder="e.g. dQw4w9WgXcQ" spellcheck="false">
+                <div class="link-hint">
+                    Hanapin sa URL ng iyong stream:<br>
+                    youtube.com/watch?v=<code>XXXXXXXX</code>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="applyVideoId()">
+                <span class="btn-icon">⚡</span> Apply & Reconnect Chat
+            </button>
+        </div>
+
+        <!-- ===================== STORY TEXT ===================== -->
+        <div class="card">
+            <div class="card-title">📖 Story Mode Text</div>
+
+            <div class="form-row">
+                <label>Story Title (shown sa left panel)</label>
+                <input type="text" id="input-story-title" placeholder="e.g. KWENTONG GABI" maxlength="40">
+            </div>
+            <div class="form-row">
+                <label>Story Description / Tagline</label>
+                <textarea id="input-story-desc" placeholder="Huwag nang maghanap ng ilaw.&#10;Ang takot ay kasama mo na." maxlength="200"></textarea>
+                <div class="char-count"><span id="desc-count">0</span> / 200</div>
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="applyStoryText()">
+                <span class="btn-icon">✍</span> Update Story Panel
+            </button>
+        </div>
+
+        <!-- ===================== SPONSORS ===================== -->
+        <div class="card full-width">
+            <div class="card-title">🖼️ Sponsor Images</div>
+
+            <!-- Existing list -->
+            <div id="sponsor-list">
+                <!-- Dynamically rendered -->
+            </div>
+
+            <!-- Add by URL -->
+            <label>Add Sponsor — Paste Image URL</label>
+            <div class="add-sponsor-row">
+                <input type="url" id="sponsor-url-input" placeholder="https://example.com/logo.png">
+                <button class="btn btn-secondary" onclick="addSponsorFromUrl()">+ Add URL</button>
+            </div>
+
+            <!-- Add by file upload -->
+            <label>Or Upload Image File</label>
+            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                <input type="file" id="file-input" accept="image/*" multiple onchange="handleFileUpload(event)">
+                Click para pumili ng larawan, o i-drag dito ang file
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="applySponsors()">
+                <span class="btn-icon">📡</span> Send Sponsors to Overlay
+            </button>
+        </div>
+
+        <!-- ===================== KEYBOARD SHORTCUTS ===================== -->
+        <div class="card full-width">
+            <div class="card-title">⌨️ Keyboard Shortcuts (sa Overlay Window)</div>
+            <div class="hotkeys-grid">
+                <div class="hotkey-row">
+                    <div class="key-badge">W</div>
+                    <div>
+                        <div class="hotkey-desc">Waiting Screen</div>
+                        <div class="hotkey-sub">Toggle "Starting Soon" horror screen</div>
+                    </div>
+                </div>
+                <div class="hotkey-row">
+                    <div class="key-badge">T</div>
+                    <div>
+                        <div class="hotkey-desc">Story Mode</div>
+                        <div class="hotkey-sub">Camera pumunta sa kanan, lilitaw ang story panel</div>
+                    </div>
+                </div>
+                <div class="hotkey-row">
+                    <div class="key-badge">S</div>
+                    <div>
+                        <div class="hotkey-desc">Shoutout Board</div>
+                        <div class="hotkey-sub">Ipakita ang listahan ng mga nag-comment</div>
+                    </div>
+                </div>
+                <div class="hotkey-row">
+                    <div class="key-badge">N</div>
+                    <div>
+                        <div class="hotkey-desc">Next Story Transition</div>
+                        <div class="hotkey-sub">Horror cinematic transition effect + SFX</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast">✓ Settings Applied</div>
+
+    <script>
+        // =============================================
+        // BROADCAST CHANNEL
+        // =============================================
+        let channel;
+        try {
+            channel = new BroadcastChannel('horror-overlay-ctrl');
+            // Detect if overlay is open (we won't get a response but at least no error)
+            updateConnectionBadge(true);
+        } catch(e) {
+            updateConnectionBadge(false);
+        }
+
+        function updateConnectionBadge(ok) {
+            const badge = document.getElementById('connection-badge');
+            badge.textContent = ok ? '⬤ OVERLAY READY' : '⬤ OVERLAY DISCONNECTED';
+            badge.className   = 'status-badge' + (ok ? ' connected' : '');
+        }
+
+        function sendToOverlay(data) {
+            try {
+                channel.postMessage(data);
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+
+        // =============================================
+        // SPONSOR MANAGEMENT
+        // =============================================
+        let sponsors = JSON.parse(localStorage.getItem('horror_sponsors') || '[]');
+
+        function renderSponsorList() {
+            const list = document.getElementById('sponsor-list');
+            if (sponsors.length === 0) {
+                list.innerHTML = `<div style="color:var(--muted);font-family:'Share Tech Mono';font-size:12px;letter-spacing:2px;padding:14px 0;text-align:center;">Walang sponsor pa. Mag-add na.</div>`;
+                return;
+            }
+            list.innerHTML = '';
+            sponsors.forEach((s, i) => {
+                const div = document.createElement('div');
+                div.className = 'sponsor-entry';
+                div.innerHTML = `
+                    <img class="sponsor-preview" src="${escHtml(s.url)}" alt="${escHtml(s.alt)}" onerror="this.src='https://via.placeholder.com/80x36/1a1a1a/555?text=ERR'">
+                    <span class="sponsor-url-display">${escHtml(s.url)}</span>
+                    <button class="btn btn-danger" onclick="removeSponsor(${i})">✕ Remove</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function addSponsorFromUrl() {
+            const input = document.getElementById('sponsor-url-input');
+            const url   = input.value.trim();
+            if (!url) { showToast('Walang URL!', true); return; }
+            sponsors.push({ url, alt: 'Sponsor' });
+            localStorage.setItem('horror_sponsors', JSON.stringify(sponsors));
+            renderSponsorList();
+            input.value = '';
+            showToast('Sponsor added! I-click ang "Send" para i-apply.');
+        }
+
+        function handleFileUpload(e) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    sponsors.push({ url: evt.target.result, alt: file.name });
+                    localStorage.setItem('horror_sponsors', JSON.stringify(sponsors));
+                    renderSponsorList();
+                };
+                reader.readAsDataURL(file);
+            });
+            showToast(`${files.length} sponsor file(s) loaded. I-click ang "Send".`);
+        }
+
+        function removeSponsor(idx) {
+            sponsors.splice(idx, 1);
+            localStorage.setItem('horror_sponsors', JSON.stringify(sponsors));
+            renderSponsorList();
+        }
+
+        function applySponsors() {
+            sendToOverlay({ type: 'UPDATE_SPONSORS', sponsors });
+            showToast('✓ Sponsors sent to overlay!');
+        }
+
+        // =============================================
+        // VIDEO ID
+        // =============================================
+        function applyVideoId() {
+            const vid = document.getElementById('input-video-id').value.trim();
+            if (!vid) { showToast('Wala pang Video ID!', true); return; }
+            // Extract from full URL if pasted
+            const match = vid.match(/[?&]v=([^&]+)/);
+            const cleanId = match ? match[1] : vid;
+            localStorage.setItem('horror_video_id', cleanId);
+            sendToOverlay({ type: 'UPDATE_VIDEO_ID', videoId: cleanId });
+            showToast('✓ Video ID updated: ' + cleanId);
+        }
+
+        // =============================================
+        // STORY TEXT
+        // =============================================
+        function applyStoryText() {
+            const title = document.getElementById('input-story-title').value.trim();
+            const desc  = document.getElementById('input-story-desc').value.trim();
+            sendToOverlay({ type: 'UPDATE_STORY_TEXT', title: title || 'KWENTONG<br>GABI', desc: desc || '' });
+            showToast('✓ Story text updated!');
+        }
+
+        // char counter
+        document.getElementById('input-story-desc').addEventListener('input', function() {
+            document.getElementById('desc-count').textContent = this.value.length;
+        });
+
+        // =============================================
+        // DRAG & DROP
+        // =============================================
+        const dropZone = document.getElementById('drop-zone');
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault(); dropZone.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    sponsors.push({ url: evt.target.result, alt: file.name });
+                    localStorage.setItem('horror_sponsors', JSON.stringify(sponsors));
+                    renderSponsorList();
+                };
+                reader.readAsDataURL(file);
+            });
+            if (files.length) showToast(`${files.length} file(s) na-load. I-click ang "Send".`);
+        });
+
+        // =============================================
+        // TOAST HELPER
+        // =============================================
+        let toastTimer;
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className   = 'show' + (isError ? ' error' : '');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { t.className = ''; }, 3000);
+        }
+
+        function escHtml(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        // =============================================
+        // LOAD SAVED ON PAGE OPEN
+        // =============================================
+        const savedVid = localStorage.getItem('horror_video_id');
+        if (savedVid) document.getElementById('input-video-id').value = savedVid;
+
+        renderSponsorList();
+    </script>
+</body>
+</html>
