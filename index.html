@@ -38,10 +38,7 @@
             filter: grayscale(90%) contrast(110%) brightness(25%);
         }
         body.story-mode #webcam-feed {
-            left: auto; right: 0; width: 52%; height: 100%;
-            border-left: 3px solid rgba(201,0,0,0.5);
-            filter: grayscale(30%) contrast(115%) brightness(88%) sepia(10%) hue-rotate(320deg);
-            box-shadow: -60px 0 140px rgba(0,0,0,0.98);
+            filter: grayscale(30%) contrast(115%) brightness(80%) sepia(10%) hue-rotate(320deg);
         }
         body.fear-max #webcam-feed {
             filter: grayscale(0%) contrast(130%) brightness(70%) sepia(60%) hue-rotate(320deg) saturate(200%);
@@ -66,25 +63,17 @@
         /* SPONSORS */
         #sponsors-container { position: absolute; top: 40px; right: 40px; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(10px); border-left: 3px solid var(--blood-red); padding: 15px 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: flex-end; transition: opacity 0.5s, right 0.5s; }
         body.shoutout-mode #sponsors-container { opacity: 0; pointer-events: none; }
-        body.story-mode #sponsors-container { right: calc(52% + 20px); }
+        body.story-mode #sponsors-container { opacity: 0; pointer-events: none; }
         .sponsor-title { font-family: 'Oswald', sans-serif; color: var(--text-muted); font-size: 12px; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 10px; }
         .sponsor-images { display: flex; gap: 15px; align-items: center; }
         .sponsor-img { height: 40px; object-fit: contain; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); animation: float-logo 4s ease-in-out infinite alternate; }
 
-        /* FEAR METER */
-        #fear-meter-wrap { position: absolute; left: 40px; top: 50%; transform: translateY(-50%); z-index: 12; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: opacity 0.5s; }
-        body.shoutout-mode #fear-meter-wrap, body.story-mode #fear-meter-wrap { opacity: 0; }
-        .fear-label-top { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 3px; color: rgba(201,0,0,0.6); text-transform: uppercase; writing-mode: vertical-rl; transform: rotate(180deg); }
-        #fear-track { width: 18px; height: 260px; background: rgba(0,0,0,0.7); border: 1px solid rgba(201,0,0,0.25); border-radius: 9px; overflow: hidden; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 10px rgba(0,0,0,0.5); }
-        #fear-fill { position: absolute; bottom: 0; left: 0; right: 0; height: 0%; background: linear-gradient(to top, #c90000, #ff4400, #ff8800); border-radius: 0 0 9px 9px; transition: height 0.8s cubic-bezier(0.25,1,0.5,1), background 0.5s; box-shadow: 0 0 12px rgba(201,0,0,0.6); }
-        #fear-track::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(to bottom, transparent 0px, transparent 24px, rgba(255,255,255,0.07) 24px, rgba(255,255,255,0.07) 25px); z-index: 2; pointer-events: none; }
-        .fear-label-bot { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 3px; color: rgba(201,0,0,0.4); writing-mode: vertical-rl; transform: rotate(180deg); }
-        #fear-percent { font-family: 'Share Tech Mono', monospace; font-size: 14px; color: var(--blood-red); }
+
 
         /* EMF DETECTOR */
         #emf-widget { position: absolute; right: 40px; bottom: 75px; z-index: 12; width: 200px; background: rgba(5,5,5,0.9); border: 1px solid rgba(0,255,80,0.2); border-top: 2px solid rgba(0,255,80,0.5); padding: 12px 16px 14px; transition: opacity 0.5s; }
         body.shoutout-mode #emf-widget { opacity: 0; }
-        body.story-mode #emf-widget { right: 20px; bottom: 70px; }
+        body.story-mode #emf-widget { opacity: 0.85; }
         .emf-header { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 4px; color: rgba(0,255,80,0.5); text-transform: uppercase; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .emf-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,255,80,0.4); animation: blink 2s infinite; }
         .emf-dot.spike { background: #ff4400 !important; box-shadow: 0 0 8px #ff4400; animation: blink 0.3s infinite !important; }
@@ -109,23 +98,15 @@
         /* Left half dark gradient */
         #story-overlay::before {
             content: '';
-            position: absolute; top: 0; left: 0; width: 52%; height: 100%;
-            background: linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 75%, transparent 100%);
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 55%;
+            background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 60%, transparent 100%);
             z-index: 0;
         }
-        /* Red separator line between cam and left panel */
-        #story-overlay::after {
-            content: '';
-            position: absolute; top: 6%; left: calc(48% - 1px);
-            width: 2px; height: 88%;
-            background: linear-gradient(to bottom, transparent, rgba(201,0,0,0.7) 15%, rgba(201,0,0,0.7) 85%, transparent);
-            z-index: 1;
-        }
 
-        /* Mic visualizer canvas — above ticker, left half */
+        /* Mic visualizer canvas — bottom left, above title */
         #mic-visualizer {
             position: absolute;
-            left: 70px; bottom: 200px;
+            left: 70px; bottom: 210px;
             z-index: 5; opacity: 0;
             transition: opacity 0.9s 0.6s ease;
         }
@@ -134,11 +115,11 @@
         /* Mic label */
         .mic-status-bar {
             position: absolute;
-            left: 70px; bottom: 295px;
+            left: 70px; bottom: 310px;
             z-index: 5;
             font-family: 'Share Tech Mono', monospace;
             font-size: 10px; letter-spacing: 5px;
-            color: rgba(201,0,0,0.45);
+            color: rgba(201,0,0,0.55);
             text-transform: uppercase;
             display: flex; align-items: center; gap: 10px;
             opacity: 0; transition: opacity 0.9s 0.8s ease;
@@ -150,8 +131,8 @@
         /* Story title — bottom-left, big */
         #story-title-block {
             position: absolute;
-            left: 70px; bottom: 80px;
-            z-index: 5; max-width: 840px;
+            left: 70px; bottom: 75px;
+            z-index: 5; max-width: 1200px;
             opacity: 0; transform: translateY(28px);
             transition: opacity 0.9s 0.3s ease, transform 0.9s 0.3s cubic-bezier(0.16,1,0.3,1);
         }
@@ -522,14 +503,6 @@
         </div>
     </div>
 
-    <!-- FEAR METER -->
-    <div id="fear-meter-wrap">
-        <div class="fear-label-top">Fear Level</div>
-        <div id="fear-track"><div id="fear-fill"></div></div>
-        <div id="fear-percent">0%</div>
-        <div class="fear-label-bot">E.V.P</div>
-    </div>
-
     <!-- EMF DETECTOR -->
     <div id="emf-widget">
         <div class="emf-header"><span>EMF RDR-6</span><div class="emf-dot" id="emf-status-dot"></div></div>
@@ -790,16 +763,9 @@ const FEAR_PER_COMMENT = 4;
 
 function setFear(v) {
     fearLevel = Math.max(0, Math.min(100, v));
-    document.getElementById('fear-fill').style.height   = fearLevel + '%';
-    document.getElementById('fear-percent').textContent = Math.round(fearLevel) + '%';
-    if (fearLevel < 40) {
-        document.getElementById('fear-fill').style.background = 'linear-gradient(to top,#c90000,#ff4400)';
-        document.body.classList.remove('fear-max');
-    } else if (fearLevel < 75) {
-        document.getElementById('fear-fill').style.background = 'linear-gradient(to top,#c90000,#ff4400,#ff6600)';
+    if (fearLevel < 75) {
         document.body.classList.remove('fear-max');
     } else {
-        document.getElementById('fear-fill').style.background = 'linear-gradient(to top,#8b0000,#c90000,#ff2200,#ff6600)';
         if (fearLevel >= 100) { document.body.classList.add('fear-max'); triggerRandomGlitch(); }
     }
 }
