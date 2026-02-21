@@ -1453,6 +1453,10 @@ scheduleGhost();
 // 13. YOUTUBE LIVE CHAT API
 // ======================================================================
 let liveChatId='',nextPageToken='',commentQueue=[],isShowingComment=false;
+let fetchTimer=null;
+// MIN 20s between fetches — ~2,160 units/day vs 61,700 before
+// Also respects YouTube's own pollingIntervalMillis from each response
+const MIN_POLL_MS = 20000;
 
 async function getLiveChatId() {
     if (!VIDEO_ID||!API_KEY) return;
@@ -1461,9 +1465,14 @@ async function getLiveChatId() {
         const d=await r.json();
         if (d.items&&d.items[0]&&d.items[0].liveStreamingDetails) {
             liveChatId=d.items[0].liveStreamingDetails.activeLiveChatId;
-            if (liveChatId) { fetchMessages(); setInterval(fetchMessages,7000); }
+            if (liveChatId) scheduleFetch(0);
         }
     } catch(e) { console.error('getLiveChatId:',e); }
+}
+
+function scheduleFetch(delayMs) {
+    if (fetchTimer) clearTimeout(fetchTimer);
+    fetchTimer = setTimeout(fetchMessages, delayMs);
 }
 
 async function fetchMessages() {
@@ -1472,6 +1481,18 @@ async function fetchMessages() {
     if (nextPageToken) url+=`&pageToken=${nextPageToken}`;
     try {
         const r=await fetch(url); const d=await r.json();
+
+        // Detect quota exceeded
+        if (d.error && d.error.code===403) {
+            console.warn('YouTube quota exceeded — pausing fetch for 5 min');
+            scheduleFetch(300000); // retry after 5 min
+            return;
+        }
+
+        // Use YouTube's suggested polling interval, but enforce minimum
+        const suggestedMs = d.pollingIntervalMillis || MIN_POLL_MS;
+        const nextPoll = Math.max(suggestedMs, MIN_POLL_MS);
+
         if (d.nextPageToken) {
             const first=!nextPageToken; nextPageToken=d.nextPageToken;
             if (!first&&d.items&&d.items.length) {
@@ -1480,12 +1501,9 @@ async function fetchMessages() {
                     const text=item.snippet.displayMessage||'';
                     const type=item.snippet.type;
                     const avatar=item.authorDetails.profileImageUrl||'';
-                    // Update map — keep oldest entry's order, always refresh avatar+comment
                     if (!uniqueCommenters.has(name)) {
                         uniqueCommenters.set(name, { avatar, lastComment: text });
                     } else {
-                        // update avatar and last comment but keep insertion order
-                        const existing = uniqueCommenters.get(name);
                         uniqueCommenters.delete(name);
                         uniqueCommenters.set(name, { avatar, lastComment: text });
                     }
@@ -1500,7 +1518,9 @@ async function fetchMessages() {
                 processCommentQueue();
             }
         }
-    } catch(e) { console.error('fetchMessages:',e); }
+
+        scheduleFetch(nextPoll);
+    } catch(e) { console.error('fetchMessages:',e); scheduleFetch(MIN_POLL_MS); }
 }
 
 function processCommentQueue() {
