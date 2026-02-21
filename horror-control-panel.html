@@ -328,6 +328,31 @@
             </div>
         </div>
 
+        <!-- ===================== NEXT STORY SFX ===================== -->
+        <div class="card">
+            <div class="card-title">🔊 Next Story Sound Effect</div>
+            <p style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px;line-height:1.7;margin-bottom:18px;">
+                I-upload ang audio file na tutugtog kapag pinindot ang <strong style="color:var(--text)">N</strong> (Next Story Transition).
+            </p>
+
+            <label>Upload Audio File (MP3, WAV, OGG)</label>
+            <div class="drop-zone" id="sfx-drop-zone" onclick="document.getElementById('sfx-file-input').click()" style="margin-bottom:16px;">
+                <input type="file" id="sfx-file-input" accept="audio/*" style="display:none" onchange="handleSfxUpload(event)">
+                <span id="sfx-drop-label">Click para pumili ng audio file</span>
+            </div>
+
+            <div id="sfx-preview-wrap" style="display:none;margin-bottom:16px;background:#0a0a0a;border:1px solid rgba(201,0,0,0.15);padding:12px;">
+                <audio id="sfx-preview-player" controls style="width:100%;filter:invert(1) hue-rotate(180deg);"></audio>
+            </div>
+
+            <div style="display:flex;gap:10px;">
+                <button class="btn btn-primary" style="flex:1;justify-content:center;" onclick="applySfx()">
+                    <span class="btn-icon">🔊</span> Send SFX to Overlay
+                </button>
+                <button class="btn btn-danger" style="padding:12px 18px;" onclick="clearSfx()" title="I-clear ang SFX">✕</button>
+            </div>
+        </div>
+
         <!-- ===================== SPONSORS ===================== -->
         <div class="card full-width">
             <div class="card-title">🖼️ Sponsor Images</div>
@@ -497,6 +522,68 @@
             sendToOverlay({ type: 'UPDATE_VIDEO_ID', videoId: cleanId });
             showToast('✓ Video ID updated: ' + cleanId);
         }
+
+        // =============================================
+        // NEXT STORY SFX
+        // =============================================
+        let sfxSrc = localStorage.getItem('horror_sfx_next') || '';
+
+        if (sfxSrc) {
+            document.getElementById('sfx-drop-label').textContent = '✓ SFX loaded (from previous session)';
+            showSfxPreview(sfxSrc);
+        }
+
+        function handleSfxUpload(e) {
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                sfxSrc = evt.target.result;
+                document.getElementById('sfx-drop-label').textContent = '✓ ' + file.name;
+                showSfxPreview(sfxSrc);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showSfxPreview(src) {
+            const wrap = document.getElementById('sfx-preview-wrap');
+            const player = document.getElementById('sfx-preview-player');
+            player.src = src;
+            wrap.style.display = 'block';
+        }
+
+        function applySfx() {
+            if (!sfxSrc) { showToast('Walang SFX! Mag-upload muna.', true); return; }
+            localStorage.setItem('horror_sfx_next', sfxSrc);
+            sendToOverlay({ type: 'UPDATE_SFX_NEXT', src: sfxSrc });
+            showToast('✓ SFX sent to overlay!');
+        }
+
+        function clearSfx() {
+            sfxSrc = '';
+            localStorage.removeItem('horror_sfx_next');
+            document.getElementById('sfx-drop-label').textContent = 'Click para pumili ng audio file';
+            document.getElementById('sfx-preview-wrap').style.display = 'none';
+            document.getElementById('sfx-preview-player').src = '';
+            sendToOverlay({ type: 'UPDATE_SFX_NEXT', src: '' });
+            showToast('✓ SFX cleared.');
+        }
+
+        // Drag & drop for SFX
+        const sfxDrop = document.getElementById('sfx-drop-zone');
+        sfxDrop.addEventListener('dragover', (e) => { e.preventDefault(); sfxDrop.classList.add('dragover'); });
+        sfxDrop.addEventListener('dragleave', () => sfxDrop.classList.remove('dragover'));
+        sfxDrop.addEventListener('drop', (e) => {
+            e.preventDefault(); sfxDrop.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (!file || !file.type.startsWith('audio/')) { showToast('Audio file lang ang accepted!', true); return; }
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                sfxSrc = evt.target.result;
+                document.getElementById('sfx-drop-label').textContent = '✓ ' + file.name;
+                showSfxPreview(sfxSrc);
+            };
+            reader.readAsDataURL(file);
+        });
 
         // =============================================
         // STORY MEDIA
