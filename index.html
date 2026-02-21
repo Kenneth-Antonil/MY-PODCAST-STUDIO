@@ -598,7 +598,7 @@
         .waiting-vignette { position: absolute; inset: 0; box-shadow: 0 0 400px rgba(201,0,0,0.35) inset; z-index: 1; pointer-events: none; }
         .waiting-content { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .waiting-eyebrow { font-family: 'Share Tech Mono', monospace; font-size: 16px; letter-spacing: 12px; color: var(--blood-red); text-transform: uppercase; margin-bottom: 30px; animation: pulse-opacity 2s ease-in-out infinite; }
-        .waiting-main-title { font-family: 'UnifrakturMaguntia', cursive; font-size: 140px; line-height: 1; color: #fff; text-shadow: 0 0 80px rgba(201,0,0,0.9); letter-spacing: 5px; margin-bottom: 10px; animation: flicker-title 8s infinite; }
+        .waiting-main-title { font-family: 'UnifrakturMaguntia', cursive; font-size: 140px; line-height: 1; color: #fff; text-shadow: 0 0 80px rgba(201,0,0,0.9); letter-spacing: 5px; margin-bottom: 10px; animation: flicker-title 20s infinite; }
         .waiting-sub { font-family: 'Cinzel', serif; font-size: 30px; letter-spacing: 15px; color: var(--blood-red); text-transform: uppercase; margin-bottom: 60px; }
         .waiting-divider { width: 500px; height: 2px; background: linear-gradient(to right, transparent, var(--blood-red), transparent); margin-bottom: 50px; }
         .waiting-status-row { display: flex; align-items: center; gap: 20px; font-family: 'Share Tech Mono', monospace; font-size: 18px; color: var(--text-muted); letter-spacing: 4px; }
@@ -625,7 +625,7 @@
         .raid-vignette { position: absolute; inset: 0; box-shadow: 0 0 500px rgba(201,0,0,0.6) inset; z-index: 1; }
         .raid-content { position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center; }
         .raid-alert-tag { font-family: 'Share Tech Mono', monospace; font-size: 16px; letter-spacing: 10px; color: var(--blood-red); text-transform: uppercase; border: 1px solid rgba(201,0,0,0.4); padding: 8px 30px; margin-bottom: 24px; animation: pulse-opacity 1s ease-in-out infinite; }
-        .raid-main-text { font-family: 'Cinzel', serif; font-size: 110px; font-weight: 800; color: #fff; letter-spacing: 8px; line-height: 0.9; text-shadow: 0 0 80px rgba(201,0,0,0.9), 4px 4px 0 rgba(100,0,0,0.8); text-align: center; animation: flicker-title 3s infinite; }
+        .raid-main-text { font-family: 'Cinzel', serif; font-size: 110px; font-weight: 800; color: #fff; letter-spacing: 8px; line-height: 0.9; text-shadow: 0 0 80px rgba(201,0,0,0.9), 4px 4px 0 rgba(100,0,0,0.8); text-align: center; animation: flicker-title 15s infinite; }
         .raid-channel-name { font-family: 'Oswald', sans-serif; font-size: 55px; color: var(--blood-red); letter-spacing: 5px; text-transform: uppercase; text-shadow: 0 0 30px rgba(201,0,0,0.8); margin: 10px 0 30px; }
         .raid-sub-text { font-family: 'Share Tech Mono', monospace; font-size: 18px; letter-spacing: 5px; color: rgba(255,255,255,0.4); text-transform: uppercase; }
         .raid-count-display { font-family: 'Share Tech Mono', monospace; font-size: 50px; color: rgba(201,0,0,0.8); letter-spacing: 3px; margin-top: 8px; }
@@ -685,7 +685,7 @@
         @keyframes soul-enter { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
         @keyframes glyph-flicker { 0%,18%,20%,22%,60%,62%,100%{opacity:1} 19%,21%,61%{opacity:0.7;text-shadow:none} }
         @keyframes pulse-opacity { 0%,100%{opacity:0.6} 50%{opacity:1} }
-        @keyframes flicker-title { 0%,19%,21%,23%,54%,56%,100%{opacity:1} 20%,24%,55%{opacity:0.85} }
+        @keyframes flicker-title { 0%,100%{opacity:1} 92%{opacity:1} 93%{opacity:0.88} 94%{opacity:1} 97%{opacity:0.93} 98%{opacity:1} }
         @keyframes noise-shift { 0%{background-position:0 0} 100%{background-position:0 4px} }
         @keyframes drip-fall { 0%{transform:scaleY(0.3);opacity:0} 30%{opacity:0.7} 70%{transform:scaleY(1);opacity:0.6} 100%{transform:scaleY(0.3);opacity:0} }
         @keyframes dot-pulse { 0%,100%{opacity:0.2;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
@@ -709,7 +709,7 @@
     <div id="glitch-overlay"></div>
     <div id="flash-overlay"></div>
 
-    <audio id="horror-sfx"    src="creepy-whoosh.mp3" preload="auto"></audio>
+    <audio id="horror-sfx"    src="https://drive.google.com/uc?export=download&id=1vvpeIMgsQbHdSr_WUkKGDLLGJE5jYy1P" preload="auto" crossorigin="anonymous"></audio>
     <audio id="jumpscare-sfx" src="jumpscare.mp3"      preload="auto"></audio>
     <audio id="emf-beep"      src="emf-beep.mp3"       preload="auto"></audio>
     <audio id="raid-sfx"      src="raid-alert.mp3"     preload="auto"></audio>
@@ -796,25 +796,7 @@
     </div>
 
     <!-- EMF DETECTOR -->
-    <div id="emf-widget">
-        <div class="emf-header"><span>EMF RDR-6</span><div class="emf-dot" id="emf-status-dot"></div></div>
-        <div id="emf-gauge-wrap">
-            <svg id="emf-svg" width="120" height="70" viewBox="0 0 120 70">
-                <path d="M 10 65 A 50 50 0 0 1 110 65" fill="none" stroke="rgba(0,255,80,0.08)" stroke-width="8" stroke-linecap="round"/>
-                <path d="M 10 65 A 50 50 0 0 1 45 22"  fill="none" stroke="rgba(0,200,60,0.25)"  stroke-width="8" stroke-linecap="round"/>
-                <path d="M 45 22 A 50 50 0 0 1 80 18"  fill="none" stroke="rgba(255,180,0,0.25)" stroke-width="8" stroke-linecap="round"/>
-                <path d="M 80 18 A 50 50 0 0 1 110 65" fill="none" stroke="rgba(255,50,0,0.3)"   stroke-width="8" stroke-linecap="round"/>
-                <text x="8"  y="62" fill="rgba(0,255,80,0.35)" font-size="7" font-family="monospace">LOW</text>
-                <text x="90" y="62" fill="rgba(255,50,0,0.5)"  font-size="7" font-family="monospace">MAX</text>
-                <g id="emf-needle">
-                    <line x1="60" y1="65" x2="60" y2="22" stroke="rgba(0,255,80,0.9)" stroke-width="2" stroke-linecap="round"/>
-                    <circle cx="60" cy="65" r="4" fill="rgba(0,255,80,0.4)" stroke="rgba(0,255,80,0.6)" stroke-width="1"/>
-                </g>
-            </svg>
-        </div>
-        <div class="emf-reading" id="emf-reading">0.0 mG</div>
-        <div class="emf-zone-label" id="emf-zone-label">NO ACTIVITY</div>
-    </div>
+
 
     <!-- ================================================================
          STORY MEDIA — image/video background
