@@ -17,22 +17,34 @@
 
         body {
             margin: 0; padding: 0; width: 1920px; height: 1080px;
-            background-color: #050505; /* Black na ang background dahil nandito na ang camera */
+            background-color: #050505;
             overflow: hidden; position: relative;
             color: white; font-family: 'Roboto Condensed', sans-serif;
         }
 
-        /* --- WEBCAM FEED (Nasa likod ng lahat) --- */
+        /* --- FORCE ALLOW OVERLAY --- */
+        #force-allow-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 999; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; cursor: pointer;
+            border: 5px solid var(--dark-red);
+        }
+        .force-text {
+            font-family: 'Cinzel', serif; font-size: 40px; color: var(--blood-red);
+            text-shadow: 0 0 20px red; letter-spacing: 5px; text-align: center;
+            animation: pulse 2s infinite;
+        }
+        .force-subtext { font-size: 18px; color: #555; margin-top: 20px; text-transform: uppercase; }
+
+        /* --- WEBCAM FEED --- */
         #webcam-feed {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover; z-index: 0;
-            /* Horror Filter sa Camera mo */
             filter: grayscale(40%) contrast(120%) brightness(80%) sepia(20%) hue-rotate(320deg);
             transform-origin: center left;
             transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* Kapag in-activate ang Shoutout (Letter 'S') */
         body.shoutout-mode #webcam-feed {
             transform: perspective(1500px) rotateY(15deg) scale(0.65) translateX(5%) translateY(-5%);
             box-shadow: 30px 30px 100px rgba(0,0,0,1);
@@ -41,7 +53,7 @@
             filter: grayscale(80%) contrast(150%) brightness(60%);
         }
 
-        /* --- SHOUTOUT BOARD (Nasa Kanan) --- */
+        /* --- SHOUTOUT BOARD --- */
         #shoutout-board {
             position: absolute; top: 15%; right: 5%; width: 500px; height: 65%;
             background: linear-gradient(135deg, rgba(15,0,0,0.95), rgba(5,5,5,0.95));
@@ -52,23 +64,10 @@
             transform: translateX(150%) rotateY(-20deg); opacity: 0;
             transition: all 1s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        body.shoutout-mode #shoutout-board {
-            transform: translateX(0) rotateY(0deg); opacity: 1;
-        }
-        .shoutout-header {
-            font-family: 'Cinzel', serif; font-size: 35px; color: var(--blood-red);
-            text-align: center; letter-spacing: 5px; border-bottom: 2px dashed var(--dark-red);
-            padding-bottom: 20px; margin-bottom: 20px; text-shadow: 0 0 10px red;
-        }
-        #shoutout-list {
-            list-style: none; padding: 0; margin: 0; overflow-y: hidden;
-            display: flex; flex-direction: column; gap: 15px;
-        }
-        .shoutout-item {
-            font-family: 'Oswald', sans-serif; font-size: 28px; color: #fff;
-            letter-spacing: 2px; text-transform: uppercase;
-            animation: slideInLeft 0.5s ease forwards; opacity: 0;
-        }
+        body.shoutout-mode #shoutout-board { transform: translateX(0) rotateY(0deg); opacity: 1; }
+        .shoutout-header { font-family: 'Cinzel', serif; font-size: 35px; color: var(--blood-red); text-align: center; letter-spacing: 5px; border-bottom: 2px dashed var(--dark-red); padding-bottom: 20px; margin-bottom: 20px; text-shadow: 0 0 10px red; }
+        #shoutout-list { list-style: none; padding: 0; margin: 0; overflow-y: hidden; display: flex; flex-direction: column; gap: 15px; }
+        .shoutout-item { font-family: 'Oswald', sans-serif; font-size: 28px; color: #fff; letter-spacing: 2px; text-transform: uppercase; animation: slideInLeft 0.5s ease forwards; opacity: 0; }
 
         /* --- BROADCAST EFFECTS --- */
         .vignette { position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: 0 0 250px rgba(0,0,0,0.95) inset; pointer-events: none; z-index: 5; }
@@ -76,14 +75,14 @@
         #glitch-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://media.giphy.com/media/Yy26NRbp8y4ms/giphy.gif'); opacity: 0; pointer-events: none; z-index: 99; mix-blend-mode: screen; filter: grayscale(100%) contrast(150%); }
         .glitching { opacity: 0.12 !important; }
 
-        /* --- OTHERS (CCTV, Sponsors, Comments, Transition) --- */
+        /* --- CCTV & OTHERS --- */
         #cctv-bug { position: absolute; top: 40px; left: 40px; z-index: 10; font-family: 'Share Tech Mono', monospace; color: #fff; font-size: 24px; display: flex; align-items: center; gap: 15px; text-shadow: 2px 2px 5px #000; letter-spacing: 2px; }
         .rec-dot { width: 16px; height: 16px; background-color: red; border-radius: 50%; box-shadow: 0 0 10px red; animation: blink 1s infinite; }
         .cctv-text { color: var(--text-muted); }
         .cctv-clock { font-weight: bold; color: #fff; }
 
         #sponsors-container { position: absolute; top: 40px; right: 40px; z-index: 10; background: var(--glass-bg); backdrop-filter: blur(10px); border-left: 3px solid var(--blood-red); padding: 15px 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: flex-end; transition: opacity 0.5s; }
-        body.shoutout-mode #sponsors-container { opacity: 0; /* Itago ang sponsors pag may shoutout */ }
+        body.shoutout-mode #sponsors-container { opacity: 0; }
         .sponsor-title { font-family: 'Oswald', sans-serif; color: var(--text-muted); font-size: 12px; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 10px; }
         .sponsor-images { display: flex; gap: 15px; align-items: center; }
         .sponsor-img { height: 40px; object-fit: contain; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); animation: float-logo 4s ease-in-out infinite alternate; }
@@ -94,7 +93,7 @@
         #story-transition.active .transition-text { transform: scale(1.1); }
 
         #comment-wrapper { position: absolute; bottom: 90px; left: 60px; z-index: 20; width: 750px; transition: transform 0.5s; }
-        body.shoutout-mode #comment-wrapper { transform: translateY(200px); /* Itago ang comments pag shoutout */ }
+        body.shoutout-mode #comment-wrapper { transform: translateY(200px); }
         .evp-visualizer { display: flex; gap: 3px; height: 15px; margin-bottom: 8px; margin-left: 10px; align-items: flex-end; opacity: 0.7; }
         .evp-bar { width: 4px; background: var(--blood-red); animation: evp-bounce 1.2s infinite ease-in-out; }
         .evp-bar:nth-child(1) { animation-delay: 0.1s; height: 40%; } .evp-bar:nth-child(2) { animation-delay: 0.3s; height: 80%; } .evp-bar:nth-child(3) { animation-delay: 0.0s; height: 100%; } .evp-bar:nth-child(4) { animation-delay: 0.4s; height: 60%; } .evp-bar:nth-child(5) { animation-delay: 0.2s; height: 50%; }
@@ -118,9 +117,15 @@
         @keyframes evp-bounce { 0%, 100% { height: 30%; } 50% { height: 100%; } }
         @keyframes float-logo { 0% { transform: translateY(0); } 100% { transform: translateY(-3px); } }
         @keyframes slideInLeft { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.5; transform: scale(0.95); } }
     </style>
 </head>
 <body>
+
+    <div id="force-allow-screen" onclick="initializeSystem()">
+        <div class="force-text">INITIALIZE BROADCAST SYSTEM</div>
+        <div class="force-subtext">Click to grant permissions (Camera & Audio)</div>
+    </div>
 
     <video id="webcam-feed" autoplay muted playsinline></video>
 
@@ -181,32 +186,32 @@
     <script>
         const API_KEY = 'AIzaSyBADtw_0ahV9nKATpBRq9mCgbU1_vqnyFI'; 
         const VIDEO_ID = '0NdX9x0AQSQ'; 
+
+        // NEW: INITIALIZE SYSTEM ON CLICK
+        function initializeSystem() {
+            document.getElementById('force-allow-screen').style.display = 'none';
+            startWebcam();
+            getLiveChatId();
+            console.log("System Initialized via User Interaction.");
+        }
         
-        // ==========================================
-        // 1. WEBCAM INITIALIZATION
-        // ==========================================
+        // WEBCAM INITIALIZATION
         async function startWebcam() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1920, height: 1080 } });
                 document.getElementById('webcam-feed').srcObject = stream;
             } catch (err) {
-                console.error("Camera Error: Please allow camera permissions in OBS.", err);
-                document.getElementById('shoutout-list').innerHTML = `<li class="shoutout-item" style="color:red; font-size:20px;">Error: Camera blocked. Allow permissions.</li>`;
+                console.error("Camera Error:", err);
+                document.getElementById('shoutout-list').innerHTML = `<li class="shoutout-item" style="color:red; font-size:20px;">Error: Camera access denied.</li>`;
             }
         }
-        startWebcam();
 
-        // ==========================================
-        // 2. KEYBOARD CONTROLS (N = Next Story, S = Shoutout)
-        // ==========================================
+        // KEYBOARD CONTROLS
         let isTransitioning = false;
-        
         document.addEventListener('keydown', function(event) {
-            // TRANSITION HOTKEY (N)
             if ((event.key === 'n' || event.key === 'N') && !isTransitioning) {
                 triggerStoryTransition();
             }
-            // SHOUTOUT HOTKEY (S)
             if (event.key === 's' || event.key === 'S') {
                 toggleShoutoutMode();
             }
@@ -216,7 +221,7 @@
             isTransitioning = true;
             const transLayer = document.getElementById('story-transition');
             const sfx = document.getElementById('horror-sfx');
-            sfx.currentTime = 0; sfx.play().catch(e => console.log("Audio blocked. Click interact."));
+            sfx.currentTime = 0; sfx.play().catch(e => console.log("SFX Play Error:", e));
             transLayer.classList.add('active');
             setTimeout(() => { transLayer.classList.remove('active'); setTimeout(() => { isTransitioning = false; }, 500); }, 4500); 
         }
@@ -226,21 +231,15 @@
             updateShoutoutBoard();
         }
 
-        // ==========================================
-        // 3. SHOUTOUT DATA COLLECTOR
-        // ==========================================
-        let uniqueCommenters = new Set(); // Iniipon natin dito yung mga nag-comment
-
+        // SHOUTOUT DATA COLLECTOR
+        let uniqueCommenters = new Set(); 
         function updateShoutoutBoard() {
             const listElement = document.getElementById('shoutout-list');
-            listElement.innerHTML = ''; // Clear list
-            
+            listElement.innerHTML = ''; 
             if (uniqueCommenters.size === 0) {
                 listElement.innerHTML = `<li class="shoutout-item" style="color: gray;">No victims yet...</li>`;
                 return;
             }
-
-            // Ipakita ang latest 10 na nag-comment
             let delay = 0;
             Array.from(uniqueCommenters).slice(-10).reverse().forEach(name => {
                 const li = document.createElement('li');
@@ -248,13 +247,11 @@
                 li.innerHTML = `• ${name}`;
                 li.style.animationDelay = `${delay}s`;
                 listElement.appendChild(li);
-                delay += 0.2; // Cascade animation
+                delay += 0.2; 
             });
         }
 
-        // ==========================================
-        // 4. CLOCK & GLITCH
-        // ==========================================
+        // CLOCK & GLITCH
         function updateClock() { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' }); }
         setInterval(updateClock, 1000); updateClock();
 
@@ -266,9 +263,7 @@
         }
         setTimeout(triggerRandomGlitch, 5000);
 
-        // ==========================================
-        // 5. YOUTUBE API LOGIC
-        // ==========================================
+        // YOUTUBE API LOGIC
         let liveChatId = ''; let nextPageToken = ''; let commentQueue = []; let isShowingComment = false;
 
         async function getLiveChatId() {
@@ -293,8 +288,7 @@
                     if (!isFirstLoad && data.items && data.items.length > 0) {
                         data.items.forEach(item => {
                             const authorName = item.authorDetails.displayName;
-                            uniqueCommenters.add(authorName); // Add sa Shoutout List
-                            
+                            uniqueCommenters.add(authorName); 
                             commentQueue.push({ author: authorName, text: item.snippet.displayMessage, avatar: item.authorDetails.profileImageUrl });
                         }); processCommentQueue();
                     }
@@ -305,20 +299,15 @@
         function processCommentQueue() {
             if (isShowingComment || commentQueue.length === 0) return;
             isShowingComment = true; const comment = commentQueue.shift();
-            
-            // Wag palabasin ang comments box kung naka-shoutout mode para hindi makalat
             if (document.body.classList.contains('shoutout-mode')) {
                 isShowingComment = false; processCommentQueue(); return;
             }
-
             document.getElementById('comment-author').innerText = comment.author;
             document.getElementById('comment-text').innerText = comment.text;
             document.getElementById('comment-avatar').src = comment.avatar || "https://via.placeholder.com/70/111/fff?text=?";
             document.getElementById('comment-container').classList.add('show');
             setTimeout(() => { document.getElementById('comment-container').classList.remove('show'); setTimeout(() => { isShowingComment = false; processCommentQueue(); }, 1000); }, 6000); 
         }
-
-        getLiveChatId();
     </script>
 </body>
 </html>
