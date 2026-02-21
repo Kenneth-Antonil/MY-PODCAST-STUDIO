@@ -22,48 +22,45 @@
             color: white; font-family: 'Roboto Condensed', sans-serif;
         }
 
-        /* --- WAITING SCREEN (UPDATED: 100% OPAQUE & DESIGNED) --- */
+        /* --- WAITING SCREEN (UPDATED: SOLID & DESIGNED) --- */
         #waiting-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            /* Solid background, hindi transparent */
-            background: radial-gradient(circle, #1a0000 0%, #000000 100%);
+            background: radial-gradient(circle, #1a0000 0%, #000 100%); /* Solid background */
             z-index: 500; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 1s ease;
         }
         
-        /* Grid design for waiting screen para hindi boring */
+        /* Grid design para hindi boring */
         #waiting-screen::before {
             content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(201, 0, 0, 0.15) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(201, 0, 0, 0.15) 1px, transparent 1px);
-            background-size: 50px 50px; z-index: -1; opacity: 0.5;
+            background-image: linear-gradient(rgba(201, 0, 0, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(201, 0, 0, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px; z-index: -1; opacity: 0.5;
         }
 
         body.waiting-mode #waiting-screen { opacity: 1; pointer-events: all; }
         
-        /* Cinematic box para sa text */
         .waiting-box {
             border: 2px solid var(--blood-red); padding: 60px 100px;
-            background: rgba(0, 0, 0, 0.85); box-shadow: 0 0 50px rgba(201, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.9); box-shadow: 0 0 50px rgba(201, 0, 0, 0.4);
             text-align: center; position: relative;
         }
 
         .waiting-title { font-family: 'Cinzel', serif; font-size: 80px; color: var(--blood-red); letter-spacing: 15px; text-shadow: 0 0 30px red; margin-bottom: 10px; }
         .waiting-timer { font-family: 'Share Tech Mono', monospace; font-size: 50px; color: white; letter-spacing: 5px; }
-        .waiting-sub { font-family: 'Share Tech Mono', monospace; font-size: 24px; color: var(--text-muted); letter-spacing: 8px; animation: pulse 1.5s infinite; margin-top: 20px;}
+        .waiting-sub { font-family: 'Share Tech Mono', monospace; font-size: 20px; color: var(--text-muted); margin-top: 20px; letter-spacing: 5px; animation: pulse 1.5s infinite; }
 
         /* --- SPONSOR SECTION (NEW) --- */
         #sponsor-section {
-            position: absolute; bottom: 70px; right: 40px; z-index: 45;
+            position: absolute; bottom: 80px; right: 40px; z-index: 45;
             display: flex; flex-direction: column; align-items: flex-end;
-            opacity: 0; transition: opacity 1s ease; pointer-events: none;
+            opacity: 0; transition: opacity 1s ease;
         }
         #sponsor-section.show { opacity: 1; }
-        .sponsor-label { font-family: 'Share Tech Mono', monospace; color: var(--text-muted); font-size: 16px; margin-bottom: 10px; letter-spacing: 2px; text-transform: uppercase; }
-        .sponsor-grid { display: flex; gap: 15px; background: rgba(5, 5, 5, 0.95); border: 1px solid var(--dark-red); padding: 15px; border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.9); }
-        .sponsor-img { height: 80px; width: auto; max-width: 150px; object-fit: contain; border-radius: 4px; }
-
+        .sponsor-label { font-family: 'Share Tech Mono', monospace; color: var(--text-muted); font-size: 14px; margin-bottom: 8px; text-transform: uppercase; }
+        .sponsor-grid { display: flex; gap: 15px; background: rgba(5, 5, 5, 0.9); border: 1px solid var(--dark-red); padding: 12px; border-radius: 5px; }
+        .sponsor-img { height: 60px; width: auto; object-fit: contain; }
 
         /* --- INITIALIZE SCREEN --- */
         #force-allow-screen {
@@ -153,8 +150,7 @@
 
     <div id="sponsor-section">
         <div class="sponsor-label">Broadcast Supported By</div>
-        <div class="sponsor-grid" id="sponsor-grid">
-            </div>
+        <div class="sponsor-grid" id="sponsor-grid"></div>
     </div>
 
     <div id="news-ticker">
@@ -164,15 +160,16 @@
     </div>
 
     <script>
-        const API_KEY = 'AIzaSyBADtw_0ahV9nKATpBRq9mCgbU1_vqnyFI'; 
-        const VIDEO_ID = '0NdX9x0AQSQ'; 
+        // Gawing let para mabago ng control panel
+        let API_KEY = 'AIzaSyBADtw_0ahV9nKATpBRq9mCgbU1_vqnyFI'; 
+        let VIDEO_ID = '0NdX9x0AQSQ'; 
 
         function initializeSystem() {
             document.getElementById('force-allow-screen').style.display = 'none';
             startWebcam();
             getLiveChatId();
             startCountdown();
-            setupControlListener(); // Dinagdag para sa Control Panel
+            setupControlListener(); // Makikinig sa Control Panel
         }
         
         async function startWebcam() {
@@ -182,7 +179,7 @@
             } catch (err) { console.error("Camera Error:", err); }
         }
 
-        let timeLeft = 300; // 5 Minutes
+        let timeLeft = 300; 
         function startCountdown() {
             const timerDisplay = document.getElementById('countdown');
             setInterval(() => {
@@ -199,44 +196,42 @@
             if (event.key === 'w' || event.key === 'W') document.body.classList.toggle('waiting-mode');
         });
 
-        // (Other logic: Transition, Clock, Glitch, YouTube API - same as before)
         function updateClock() { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute:'2-digit', second:'2-digit' }); }
         setInterval(updateClock, 1000); updateClock();
 
         function triggerStoryTransition() {
             const sfx = document.getElementById('horror-sfx');
             sfx.currentTime = 0; sfx.play();
-            // ... transition animation logic ...
+            // ... (rest of your original transition logic here)
         }
 
         function toggleShoutoutMode() { document.body.classList.toggle('shoutout-mode'); }
         
-        async function getLiveChatId() { /* Same as before */ }
+        async function getLiveChatId() { /* Original logic */ }
 
-        // --- NEW: CONTROL PANEL LISTENER ---
+        // --- CONTROL PANEL LISTENER ---
         function setupControlListener() {
             window.addEventListener('storage', (event) => {
                 if (event.key === 'broadcast_cmd') {
                     const data = JSON.parse(event.newValue);
                     
-                    if (data.action === 'TOGGLE_WAITING') {
-                        document.body.classList.toggle('waiting-mode');
-                    }
+                    if (data.action === 'TOGGLE_WAITING') document.body.classList.toggle('waiting-mode');
+                    if (data.action === 'UPDATE_TICKER') document.getElementById('ticker-content').innerText = data.text;
                     
+                    if (data.action === 'UPDATE_VIDEO_ID') {
+                        VIDEO_ID = data.id;
+                        getLiveChatId(); // Re-connect chat for new video
+                    }
+
                     if (data.action === 'UPDATE_SPONSORS') {
                         const grid = document.getElementById('sponsor-grid');
                         const section = document.getElementById('sponsor-section');
-                        
                         if (data.images.length > 0) {
                             grid.innerHTML = data.images.map(url => `<img src="${url}" class="sponsor-img">`).join('');
                             section.classList.add('show');
                         } else {
                             section.classList.remove('show');
                         }
-                    }
-
-                    if (data.action === 'UPDATE_TICKER') {
-                        document.getElementById('ticker-content').innerText = data.text;
                     }
                 }
             });
