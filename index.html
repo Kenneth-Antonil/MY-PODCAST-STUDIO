@@ -709,7 +709,7 @@
     <div id="glitch-overlay"></div>
     <div id="flash-overlay"></div>
 
-    <audio id="horror-sfx"    src="https://drive.google.com/uc?export=download&id=1vvpeIMgsQbHdSr_WUkKGDLLGJE5jYy1P" preload="auto" crossorigin="anonymous"></audio>
+    <audio id="horror-sfx"    src="next-story.mp3" preload="auto"></audio>
     <audio id="jumpscare-sfx" src="jumpscare.mp3"      preload="auto"></audio>
     <audio id="emf-beep"      src="emf-beep.mp3"       preload="auto"></audio>
     <audio id="raid-sfx"      src="raid-alert.mp3"     preload="auto"></audio>
@@ -972,6 +972,10 @@ bc.addEventListener('message', e => {
             vid.classList.remove('active'); vid.src = '';
             img.src = m.src; img.classList.remove('hidden');
         }
+    }
+    if (m.type === 'UPDATE_SFX_NEXT') {
+        localStorage.setItem('horror_sfx_next', m.src);
+        if (audioCtx) loadAudioBuffer('horror-sfx', m.src);
     }
 });
 
@@ -1516,16 +1520,78 @@ function processCommentQueue() {
 getLiveChatId();
 
 // ======================================================================
-// AUDIO HELPER
+// AUDIO HELPER — AudioContext-based for reliable playback
 // ======================================================================
-function tryPlay(id) {
-    const a=document.getElementById(id); if(!a) return;
-    a.currentTime=0; a.play().catch(()=>{});
+let audioCtx = null;
+const audioBuffers = {};
+
+function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
 }
-document.addEventListener('click',()=>{
-    ['horror-sfx','jumpscare-sfx','emf-beep','raid-sfx','superchat-sfx']
-        .forEach(id=>{ const a=document.getElementById(id); if(a) a.load(); });
-},{once:true});
+
+async function loadAudioBuffer(id, src) {
+    try {
+        const ctx = getAudioCtx();
+        const res = await fetch(src);
+        const arr = await res.arrayBuffer();
+        audioBuffers[id] = await ctx.decodeAudioData(arr);
+    } catch(e) { console.warn('Audio load failed:', id, e); }
+}
+
+function tryPlay(id) {
+    // Try AudioContext buffer first (most reliable)
+    if (audioBuffers[id]) {
+        try {
+            const ctx = getAudioCtx();
+            const src = ctx.createBufferSource();
+            src.buffer = audioBuffers[id];
+            src.connect(ctx.destination);
+            src.start(0);
+            return;
+        } catch(e) {}
+    }
+    // Fallback to HTML audio element
+    const a = document.getElementById(id);
+    if (!a || !a.src) return;
+    a.currentTime = 0;
+    a.play().catch(()=>{});
+}
+
+// Load SFX into AudioContext when user first interacts
+let audioUnlocked = false;
+async function unlockAndLoadAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    getAudioCtx();
+    // Load from localStorage (uploaded via control panel) or from <audio> src
+    const sfxMap = {
+        'horror-sfx':     localStorage.getItem('horror_sfx_next') || document.getElementById('horror-sfx')?.src,
+        'jumpscare-sfx':  document.getElementById('jumpscare-sfx')?.src,
+        'raid-sfx':       document.getElementById('raid-sfx')?.src,
+        'superchat-sfx':  document.getElementById('superchat-sfx')?.src,
+    };
+    for (const [id, src] of Object.entries(sfxMap)) {
+        if (src && !src.endsWith('/') && !src.includes('undefined')) {
+            await loadAudioBuffer(id, src);
+        }
+    }
+}
+document.addEventListener('click',  unlockAndLoadAudio, { once: true });
+document.addEventListener('keydown', unlockAndLoadAudio, { once: true });
+
+// Listen for SFX uploaded from control panel
+const bcAudio = new BroadcastChannel('horror-overlay-ctrl');
+// (already handled above in bc listener — we just need to reload SFX if updated)
+
+// Reload next-story SFX from localStorage on init
+(async () => {
+    const saved = localStorage.getItem('horror_sfx_next');
+    if (saved) {
+        // Will be loaded after first interaction
+    }
+})();
 </script>
 </body>
 </html>
