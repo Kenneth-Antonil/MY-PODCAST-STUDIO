@@ -98,6 +98,34 @@
 
         @keyframes scroll-ticker { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
         @keyframes pulse { 0% { opacity: 0.5; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1); } 100% { opacity: 0.5; transform: scale(0.95); } }
+
+        /* --- STORY TRANSITION EFFECT --- */
+        #story-transition {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #1a0000 0%, #000 100%);
+            z-index: 1000; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+        }
+
+        #story-transition.active {
+            opacity: 1; pointer-events: all;
+        }
+
+        .transition-text {
+            font-family: 'Cinzel', serif; font-size: 100px;
+            color: var(--blood-red); text-shadow: 0 0 40px red;
+            letter-spacing: 20px; animation: text-glitch 0.2s infinite;
+        }
+
+        @keyframes text-glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-5px, 5px) }
+            40% { transform: translate(-5px, -5px) }
+            60% { transform: translate(5px, 5px) }
+            80% { transform: translate(5px, -5px) }
+            100% { transform: translate(0) }
+        }
     </style>
 </head>
 <body>
@@ -200,9 +228,23 @@
         setInterval(updateClock, 1000); updateClock();
 
         function triggerStoryTransition() {
+            const transitionScreen = document.getElementById('story-transition');
             const sfx = document.getElementById('horror-sfx');
-            sfx.currentTime = 0; sfx.play();
-            // ... (rest of your original transition logic here)
+            const glitchOverlay = document.getElementById('glitch-overlay');
+
+            // Play Sound Effect
+            sfx.currentTime = 0; 
+            sfx.play().catch(err => console.error("Audio play error:", err));
+
+            // Show Transition Screen & Glitch
+            transitionScreen.classList.add('active');
+            glitchOverlay.classList.add('glitching');
+
+            // Hide after 3 seconds
+            setTimeout(() => {
+                transitionScreen.classList.remove('active');
+                glitchOverlay.classList.remove('glitching');
+            }, 3000);
         }
 
         function toggleShoutoutMode() { document.body.classList.toggle('shoutout-mode'); }
@@ -218,6 +260,8 @@
                     if (data.action === 'TOGGLE_WAITING') document.body.classList.toggle('waiting-mode');
                     if (data.action === 'UPDATE_TICKER') document.getElementById('ticker-content').innerText = data.text;
                     
+                    if (data.action === 'NEXT_STORY') triggerStoryTransition();
+
                     if (data.action === 'UPDATE_VIDEO_ID') {
                         VIDEO_ID = data.id;
                         getLiveChatId(); // Re-connect chat for new video
